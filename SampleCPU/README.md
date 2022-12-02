@@ -13,7 +13,7 @@
 ## 使用方法
 
 1. 在服务器上准备好文件夹，导入`SampleCPU`内的所有`.v .vh`文件
-2. 启动路径`nscscc2021_group_v0.01/func_test_v0.01/soc_sram_func/run_vivado/mycpu_prj1`下的`mycpu.xpr`项目
+2. 启动路径`nscscc_group/func_test_v0.01/soc_sram_func/run_vivado/mycpu_prj1`下的`mycpu.xpr`项目
 3. 在`Vivado`中添加源文件，把`SampleCPU`内的所有`.v .vh`文件都导入（包括lib文件夹下）
 4. 点击`Simulation`进行仿真，第一次仿真时会对项目使用的`ip`核进行综合，可能需要等待10分钟左右
 5. 点击&#x25B6;进行仿真，如果波形图卡住可在下方的控制台看到提示信息，这是龙芯实验平台提供的比对机制，会告诉你当前在哪条指令出现错误，根据汇编指令和你学的流水线知识进行debug
