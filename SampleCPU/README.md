@@ -165,7 +165,7 @@
 
   A：因为现在的存储器用的一般都是字节编址，所以`data_sram_wen`这个写使能信号是4位，每一位控制一个字节的数据。故`sw`指令对应`4'b1111`，`lw`指令对应`4'b0000`。
 
-  `sb`指令一次只写入一个字节，所以可能是`4'b0001 4'b0010 4'b0100 4'b1000`这四种情况，具体选择那种，根据写地址的最低两位`addr[1:0]`判断。00对应最低位字节(`data_sram_wen`应为`4'b0001`)；11对应高位字节(`data_sram_wen`应为`4'b1000`)。`sh`指令类似于`sb`指令，但其只有两种情况，地址最低两位为00对应低位两个字节(`data_sram_wen`应为`4'b0011`)；地址最低两位为10时对应高位两个字节(`data_sram_wen`应为`4'b1100`)。
+  `sb`指令一次只写入一个字节，所以可能是`4'b0001 4'b0010 4'b0100 4'b1000`这四种情况，具体选择那种，根据写地址的最低两位`addr[1:0]`判断。00对应最低位字节(`data_sram_wen`应为`4'b0001`)；11对应最高位字节(`data_sram_wen`应为`4'b1000`)。`sh`指令类似于`sb`指令，但其只有两种情况，地址最低两位为00对应低位两个字节(`data_sram_wen`应为`4'b0011`)；地址最低两位为10时对应高位两个字节(`data_sram_wen`应为`4'b1100`)。
 
   `load`类指令与`store`类指令略有不同，由于这个存储器只配置了片选(`4byte`)使能和字节写使能，所以读取的时候一律是先读回CPU(此时不区分是哪个`load`指令)，在`MEM段`再进行更细分的操作。`load`类指令的字节选择方法和`store`类相同。
 
@@ -198,14 +198,14 @@
   );
   
   assign data_ram_sel = inst_sb | inst_lb | inst_lbu ? byte_sel :
-     					  inst_sh | inst_lh | inst_lhu ? {{2{byte_sel[2]}},{2{byte_sel[0]}}} :
-     					  inst_sw | inst_lw ? 4'b1111 : 4'b0000;
+                        inst_sh | inst_lh | inst_lhu ? {{2{byte_sel[2]}},{2{byte_sel[0]}}} :
+                        inst_sw | inst_lw ? 4'b1111 : 4'b0000;
   
   assign data_sram_en     = data_ram_en;
   assign data_sram_wen    = {4{data_ram_wen}}&data_ram_sel;
   assign data_sram_addr   = ex_result; 
   assign data_sram_wdata  = inst_sb ? {4{rf_rdata2[7:0]}}  :
-      					  inst_sh ? {2{rf_rdata2[15:0]}} : rf_rdata2;
+                            inst_sh ? {2{rf_rdata2[15:0]}} : rf_rdata2;
   
   // MEM段
   wire [7:0]  b_data;
@@ -214,15 +214,15 @@
   
   assign b_data = data_ram_sel[3] ? data_sram_rdata[31:24] : 
                   data_ram_sel[2] ? data_sram_rdata[23:16] :
-      			data_ram_sel[1] ? data_sram_rdata[15: 8] : 
-     				data_ram_sel[0] ? data_sram_rdata[ 7: 0] : 8'b0;
+                  data_ram_sel[1] ? data_sram_rdata[15: 8] : 
+                  data_ram_sel[0] ? data_sram_rdata[ 7: 0] : 8'b0;
   assign h_data = data_ram_sel[2] ? data_sram_rdata[31:16] :
                   data_ram_sel[0] ? data_sram_rdata[15: 0] : 16'b0;
   assign w_data = data_sram_rdata;
   
   assign mem_result = inst_lb     ? {{24{b_data[7]}},b_data} :
-      			    inst_lbu    ? {{24{1'b0}},b_data} :
-      				inst_lh     ? {{16{h_data[15]}},h_data} :
+                      inst_lbu    ? {{24{1'b0}},b_data} :
+                      inst_lh     ? {{16{h_data[15]}},h_data} :
                       inst_lhu    ? {{16{1'b0}},h_data} :
                       inst_lw     ? w_data : 32'b0; 
   ```
